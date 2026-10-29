@@ -1,0 +1,8 @@
+{
+  "id": "huyv12345/adbe-rel301m-cem",
+  "title": "ADBE REL301m CEM trading code",
+  "subtitle": "Code, ADBE daily prices and submitted CEM models",
+  "description": "REL301m Assignment 2 (reinforcement learning for stock trading, Adobe ADBE). Contains the adbe_rl Python package, config.json, ADBE daily OHLC 1986-2026 from Yahoo Finance (split-adjusted) and the submitted CEM models in outputs/consecutive/models. Attach it to the end-to-end notebook.",
+  "licenses": [{"name": "other"}],
+  "keywords": []
+}

@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "checks": [
+    "8-year train and 2-year test calendar windows, zero overlap, train before test",
+    "buy orders within 35-73% of cash, sell orders within 13-82% of shares, whole shares",
+    "4% fee on both sides; cash, shares and assets reconcile every session",
+    "penalty exactly after 21 idle sessions; failed orders do not reset the counter",
+    "buy fills at previous High, sell fills at today High/Close",
+    "cumulative reward equals the sum of rewards; only the last row ends the episode",
+    "observations unaffected by current or future prices",
+    "single-episode env equals the vectorized simulator",
+    "load/predict replay reproduces stored summaries",
+    "model files unchanged by evaluation"
+  ],
+  "audited_histories": 60
+}

@@ -1,0 +1,46 @@
+{
+  "symbol": "ADBE",
+  "data_file": "data/ADBE_daily.csv",
+  "rules": {
+    "initial_cash": 100000.0,
+    "buy_min": 0.35,
+    "buy_max": 0.73,
+    "sell_min": 0.13,
+    "sell_max": 0.82,
+    "fee_rate": 0.04,
+    "idle_limit": 21,
+    "idle_penalty": 4376.0,
+    "loss_assets": 1000.0,
+    "loss_cash": -5000.0,
+    "win_assets": 1000000.0,
+    "sell_price": "high"
+  },
+  "main_track": "consecutive",
+  "tracks": {
+    "consecutive": {
+      "train_start": "1990-09-08",
+      "validation_start": "1997-09-08",
+      "train_end": "1998-09-08",
+      "test_start": "1998-09-08",
+      "test_end": "2000-09-08"
+    },
+    "gap": {
+      "train_start": "1986-08-13",
+      "validation_start": "1993-08-13",
+      "train_end": "1994-08-13",
+      "test_start": "1998-09-08",
+      "test_end": "2000-09-08"
+    }
+  },
+  "training": {
+    "seeds": [7, 42, 123],
+    "indicator": {"population": 192, "generations": 35},
+    "temporal": {"population": 256, "generations": 35}
+  },
+  "replay_windows": [
+    ["2020-01-01", "2022-01-01"],
+    ["2021-01-01", "2023-01-01"],
+    ["2022-01-01", "2024-01-01"],
+    ["2023-01-01", "2025-01-01"]
+  ]
+}

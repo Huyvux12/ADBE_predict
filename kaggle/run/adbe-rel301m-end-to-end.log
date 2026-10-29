@@ -1,0 +1,75 @@
+[{"stream_name":"stderr","time":9.363811055,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":9.363865441,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":9.363871969,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":9.363876362,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":10.146638345,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":10.146674596,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":10.146680339,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":10.146684511,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":15.120468976,"data":"Code: /kaggle/input/datasets/huyv12345/adbe-rel301m-cem | ghi kết quả vào: /kaggle/working/outputs\n"}
+,{"stream_name":"stdout","time":15.63936425,"data":"10,114 phiên: 1986-08-13 → 2026-10-06\n"}
+,{"stream_name":"stdout","time":16.300025563,"data":"Actions:      {0: 'hold', 1: 'buy_min', 2: 'buy_mid', 3: 'buy_max', 4: 'sell_min', 5: 'sell_mid', 6: 'sell_max'}\n"}
+,{"stream_name":"stdout","time":16.300058092,"data":"Observation:  ['return_1', 'return_5', 'return_20', 'return_60', 'return_252', 'ma_20', 'ma_60', 'ma_200', 'rsi_14', 'volatility_20', 'relative_price_ma252', 'drawdown_252', 'exposure', 'idle_fraction', 'log_assets', 'assets_drawdown', 'log_previous_high', 'years']\n"}
+,{"stream_name":"stdout","time":16.30008738,"data":"obs.shape = (18,) | action_mask = [1 1 1 1 0 0 0]\n"}
+,{"stream_name":"stdout","time":17.143973636,"data":"[consecutive] indicator CEM on fit, seed 7\n"}
+,{"stream_name":"stdout","time":49.614911187,"data":"[consecutive] indicator CEM on fit, seed 42\n"}
+,{"stream_name":"stdout","time":82.175051374,"data":"[consecutive] indicator CEM on fit, seed 123\n"}
+,{"stream_name":"stdout","time":114.72843609,"data":"[consecutive] indicator CEM on train, seed 7\n"}
+,{"stream_name":"stdout","time":151.959205162,"data":"[consecutive] indicator CEM on train, seed 42\n"}
+,{"stream_name":"stdout","time":189.222477946,"data":"[consecutive] indicator CEM on train, seed 123\n"}
+,{"stream_name":"stdout","time":226.620962405,"data":"[consecutive] temporal CEM on train, seed 7\n"}
+,{"stream_name":"stdout","time":252.734946899,"data":"[consecutive] temporal CEM on train, seed 42\n"}
+,{"stream_name":"stdout","time":278.838712335,"data":"[consecutive] temporal CEM on train, seed 123\n"}
+,{"stream_name":"stdout","time":306.115208689,"data":"Huấn luyện xong sau 289 giây\n"}
+,{"stream_name":"stdout","time":307.364065132,"data":"{\n"}
+,{"stream_name":"stdout","time":307.364106062,"data":"  \"cem_temporal.json\": true,\n"}
+,{"stream_name":"stdout","time":307.364113149,"data":"  \"cem_temporal_continuation.json\": true,\n"}
+,{"stream_name":"stdout","time":307.364118228,"data":"  \"cem_train_peak.json\": true,\n"}
+,{"stream_name":"stdout","time":307.364122977,"data":"  \"cem_validation.json\": true\n"}
+,{"stream_name":"stdout","time":307.364127837,"data":"}\n"}
+,{"stream_name":"stdout","time":318.679402471,"data":"      track                     model period  peak_assets  final_assets  end_reason\n"}
+,{"stream_name":"stdout","time":318.679449791,"data":"consecutive        penalty_aware_hold  train 4.745574e+05  1.605025e+05 end_of_data\n"}
+,{"stream_name":"stdout","time":318.679473391,"data":"consecutive            cem_validation  train 5.520742e+05  2.064529e+05 end_of_data\n"}
+,{"stream_name":"stdout","time":318.679478151,"data":"consecutive            cem_train_peak  train 5.576043e+05  3.781564e+05   loss_cash\n"}
+,{"stream_name":"stdout","time":318.679481961,"data":"consecutive              cem_temporal  train 1.286607e+06  1.286607e+06         win\n"}
+,{"stream_name":"stdout","time":318.67948597,"data":"consecutive cem_temporal_continuation  train 1.286607e+06  1.286607e+06         win\n"}
+,{"stream_name":"stdout","time":318.679490223,"data":"consecutive        penalty_aware_hold   test 1.007295e+06  1.007295e+06         win\n"}
+,{"stream_name":"stdout","time":318.679494277,"data":"consecutive            cem_validation   test 9.304397e+05  8.897087e+05 end_of_data\n"}
+,{"stream_name":"stdout","time":318.679497994,"data":"consecutive            cem_train_peak   test 5.389829e+05  5.195732e+05   loss_cash\n"}
+,{"stream_name":"stdout","time":318.679501844,"data":"consecutive              cem_temporal   test 1.017252e+06  1.017252e+06         win\n"}
+,{"stream_name":"stdout","time":318.679505855,"data":"consecutive cem_temporal_continuation   test 1.017252e+06  1.017252e+06         win\n"}
+,{"stream_name":"stdout","time":319.437782241,"data":"Tổng tài sản:      1,017,252.01 USD\n"}
+,{"stream_name":"stdout","time":319.437824791,"data":"Cumulative reward: 2.319690\n"}
+,{"stream_name":"stdout","time":319.437853741,"data":"Dừng ngày 2000-07-11, lý do: win, sau 465 phiên\n"}
+,{"stream_name":"stdout","time":319.473355742,"data":"24 lệnh mua, 1 lệnh bán, tổng phí 8,060.30 USD, tổng phạt 0.00 USD\n"}
+,{"stream_name":"stdout","time":357.138324832,"data":"[consecutive] verified\n"}
+,{"stream_name":"stdout","time":357.673234726,"data":"{\n"}
+,{"stream_name":"stdout","time":357.673271677,"data":"  \"status\": \"PASS\",\n"}
+,{"stream_name":"stdout","time":357.673278231,"data":"  \"checks\": [\n"}
+,{"stream_name":"stdout","time":357.673283117,"data":"    \"8-year train and 2-year test calendar windows, zero overlap, train before test\",\n"}
+,{"stream_name":"stdout","time":357.67328778,"data":"    \"buy orders within 35-73% of cash, sell orders within 13-82% of shares, whole shares\",\n"}
+,{"stream_name":"stdout","time":357.67329226,"data":"    \"4% fee on both sides; cash, shares and assets reconcile every session\",\n"}
+,{"stream_name":"stdout","time":357.673295421,"data":"    \"penalty exactly after 21 idle sessions; failed orders do not reset the counter\",\n"}
+,{"stream_name":"stdout","time":357.673299343,"data":"    \"buy fills at previous High, sell fills at today High/Close\",\n"}
+,{"stream_name":"stdout","time":357.673304076,"data":"    \"cumulative reward equals the sum of rewards; only the last row ends the episode\",\n"}
+,{"stream_name":"stdout","time":357.673309237,"data":"    \"observations unaffected by current or future prices\",\n"}
+,{"stream_name":"stdout","time":357.673313874,"data":"    \"single-episode env equals the vectorized simulator\",\n"}
+,{"stream_name":"stdout","time":357.673318573,"data":"    \"load/predict replay reproduces stored summaries\",\n"}
+,{"stream_name":"stdout","time":357.673323274,"data":"    \"model files unchanged by evaluation\"\n"}
+,{"stream_name":"stdout","time":357.673327869,"data":"  ],\n"}
+,{"stream_name":"stdout","time":357.673332177,"data":"  \"audited_histories\": 60\n"}
+,{"stream_name":"stdout","time":357.673337207,"data":"}\n"}
+,{"stream_name":"stderr","time":361.18787301,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":361.187926473,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":361.403756842,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":361.403786214,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":362.320379856,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":362.442857282,"data":"[NbConvertApp] Writing 406382 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":365.569190674,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":366.293988039,"data":"[NbConvertApp] Support files will be in __results___files/\n"}
+,{"stream_name":"stderr","time":366.294020662,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":366.294312128,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":366.294484669,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":366.294683731,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":366.294966836,"data":"[NbConvertApp] Writing 362650 bytes to __results__.html\n"}
+]

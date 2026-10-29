@@ -1,0 +1,12 @@
+{
+  "symbol": "ADBE",
+  "source": "Yahoo Finance chart endpoint, explicit daily interval",
+  "url": "https://query1.finance.yahoo.com/v8/finance/chart/ADBE?period1=504921600&period2=1791331200&interval=1d",
+  "retrieved_on": "2026-10-07",
+  "file": "ADBE_daily.csv",
+  "rows": 10114,
+  "first_date": "1986-08-13",
+  "last_date": "2026-10-06",
+  "prices": "OHLC split-adjusted as returned by Yahoo Finance",
+  "sha256": "deda15a7650645acc128838ceff5c739efd2604d5b1d28b39a81da8a7614d18f"
+}

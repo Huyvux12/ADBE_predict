@@ -1,0 +1,15 @@
+{
+  "id": "huyv12345/adbe-rel301m-end-to-end",
+  "title": "ADBE REL301m end-to-end",
+  "code_file": "ADBE_REL301m_end_to_end.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "dataset_sources": ["huyv12345/adbe-rel301m-cem"],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}
