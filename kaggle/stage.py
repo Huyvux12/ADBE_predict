@@ -11,7 +11,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 BUILD = HERE / 'build'
 NOTEBOOK = 'ADBE_REL301m_end_to_end.ipynb'
-DATASET_FILES = ['config.json', 'requirements.txt', 'README.md', 'data/ADBE_daily.csv', 'data/provenance.json',
+DATASET_FILES = ['config.json', 'requirements.txt', 'README.md', 'main.py', 'tests/test_trading_rules.py', 'data/ADBE_daily.csv', 'data/provenance.json',
                  *[p.relative_to(ROOT).as_posix() for p in sorted((ROOT / 'adbe_rl').glob('*.py'))],
                  'adbe_rl/report_template.md',
                  *[p.relative_to(ROOT).as_posix() for p in sorted((ROOT / 'outputs/consecutive/models').glob('*.json'))]]
@@ -29,7 +29,7 @@ def stage_dataset() -> Path:
 def stage_kernel() -> Path:
     """Notebook with outputs cleared; Kaggle stores the outputs of its own run."""
     target = BUILD / 'kernel'
-    target.mkdir(parents=True)
+    target.mkdir(parents=True, exist_ok=True)
     notebook = json.loads((ROOT / NOTEBOOK).read_text(encoding='utf-8'))
     for cell in notebook['cells']:
         if cell['cell_type'] == 'code':

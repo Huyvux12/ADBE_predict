@@ -18,29 +18,51 @@
   "main_track": "consecutive",
   "tracks": {
     "consecutive": {
+      "train_start": "2008-12-05",
+      "validation_start": "2015-12-05",
+      "train_end": "2016-12-05",
+      "test_start": "2016-12-05",
+      "test_end": "2018-12-05"
+    },
+    "dotcom": {
       "train_start": "1990-09-08",
       "validation_start": "1997-09-08",
       "train_end": "1998-09-08",
       "test_start": "1998-09-08",
       "test_end": "2000-09-08"
-    },
-    "gap": {
-      "train_start": "1986-08-13",
-      "validation_start": "1993-08-13",
-      "train_end": "1994-08-13",
-      "test_start": "1998-09-08",
-      "test_end": "2000-09-08"
     }
   },
   "training": {
-    "seeds": [7, 42, 123],
-    "indicator": {"population": 192, "generations": 35},
-    "temporal": {"population": 256, "generations": 35}
+    "seeds": [
+      7,
+      42,
+      123
+    ],
+    "indicator": {
+      "population": 192,
+      "generations": 35
+    },
+    "temporal": {
+      "population": 256,
+      "generations": 35
+    }
   },
   "replay_windows": [
-    ["2020-01-01", "2022-01-01"],
-    ["2021-01-01", "2023-01-01"],
-    ["2022-01-01", "2024-01-01"],
-    ["2023-01-01", "2025-01-01"]
+    [
+      "2020-01-01",
+      "2022-01-01"
+    ],
+    [
+      "2021-01-01",
+      "2023-01-01"
+    ],
+    [
+      "2022-01-01",
+      "2024-01-01"
+    ],
+    [
+      "2023-01-01",
+      "2025-01-01"
+    ]
   ]
 }

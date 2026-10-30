@@ -1,0 +1,23 @@
+{
+  "fit": {
+    "first_session": "1990-09-10",
+    "last_session": "1997-09-05",
+    "sessions": 1769
+  },
+  "validation": {
+    "first_session": "1997-09-08",
+    "last_session": "1998-09-04",
+    "sessions": 252
+  },
+  "train": {
+    "first_session": "1990-09-10",
+    "last_session": "1998-09-04",
+    "sessions": 2021
+  },
+  "test": {
+    "first_session": "1998-09-08",
+    "last_session": "2000-09-07",
+    "sessions": 506
+  },
+  "gap_calendar_days": 0
+}

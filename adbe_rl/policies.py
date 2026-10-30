@@ -47,8 +47,14 @@ def decide(logits, controls, cash, shares, idle, price, rules: Rules, mask=None)
     cost = np.where(invalid, np.inf, fee)
     cost[:, 0] = np.inf
     cheapest = np.argmin(cost, axis=1)
+    affordable = cost[rows, cheapest] < rules.idle_penalty * threshold
+    # Taking the penalty must never end the episode: if it would push cash to the
+    # loss limit (or assets below the loss limit), trade whatever the fee.
+    assets = cash + shares * price
+    fatal = ((cash - rules.idle_penalty <= rules.loss_cash)
+             | (assets - rules.idle_penalty < rules.loss_assets))
     dodge = ((idle >= rules.idle_limit - 1) & (action == 0)
-             & (cost[rows, cheapest] < rules.idle_penalty * threshold))
+             & np.isfinite(cost[rows, cheapest]) & (affordable | fatal))
     return np.where(dodge, cheapest, action)
 
 
@@ -127,7 +133,10 @@ class Population:
         return len(self.thetas)
 
     def logits(self, t: int) -> np.ndarray:
-        return self.policy.logits(self.thetas, self.market.features[t - 1], self.market.years[t])
+        # float32 year, exactly as TradingEnv puts it in the observation, so the
+        # simulator and predict() always agree (also at the horizon boundary).
+        year = float(np.float32(self.market.years[t]))
+        return self.policy.logits(self.thetas, self.market.features[t - 1], year)
 
 
 class PenaltyAwareHold:

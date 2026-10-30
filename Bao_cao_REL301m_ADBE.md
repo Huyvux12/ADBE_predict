@@ -8,10 +8,10 @@
 
 | Tập | Khoảng dữ liệu | Tổng tài sản đạt được | Cumulative reward | Kết thúc | Tỷ lệ so với 1M USD |
 |---|---|---:|---:|---|---:|
-| Train (8 năm) | 1990-09-10 → 1998-09-04 | **1,286,607.16 USD** | 2.554594 | Thắng ngày 1995-03-24 | **128.66%** |
-| Test (2 năm, load model đã lưu) | 1998-09-08 → 2000-09-07 | **1,017,252.01 USD** | 2.319690 | Thắng ngày 2000-07-11 | **101.73%** |
+| Train (8 năm) | 2008-12-05 → 2016-12-02 | **860,523.74 USD** | 2.041927 | Hết dữ liệu (đỉnh ngày 2016-10-24) | **86.05%** |
+| Test (2 năm, load model đã lưu) | 2016-12-05 → 2018-12-04 | **254,241.93 USD** | 0.849051 | Hết dữ liệu (đỉnh ngày 2018-09-14) | **25.42%** |
 
-Cả hai episode đều chạm điều kiện thắng (tổng tài sản ≥ 1.000.000 USD) và dừng ngay tại phiên đó. Test chạy bằng `load_policy(...)` và `model.predict(...)`, không huấn luyện lại.
+Tổng tài sản đạt được là tài sản cao nhất trong quá trình thực nghiệm, đúng cách chấm điểm của đề. Trên test, từ 100.000 USD vốn ban đầu, model đạt tối đa **254,241.93 USD** và kết thúc 2 năm với 233,742.79 USD. Test chạy bằng `load_policy(...)` và `model.predict(...)`, không huấn luyện lại. Phụ lục A trình bày thêm phương án train 1990–1998, test 1998–2000: cùng thuật toán đạt điều kiện thắng 1 triệu USD trên cả train (1,286,574.63 USD) và test (1,017,252.01 USD).
 
 ## 1. Đặt vấn đề
 
@@ -48,12 +48,14 @@ trong đó C là tiền mặt, N là số cổ phiếu đang giữ và P là gi�
 
 Dữ liệu là lịch sử giá OHLC theo ngày của ADBE (Yahoo Finance, interval 1d, đã điều chỉnh theo các lần chia tách cổ phiếu), gồm 10.114 phiên từ 13/08/1986 đến 06/10/2026. Theo quy định của giảng viên, mô hình được train trên 8 năm và test trên 2 năm bất kỳ nằm sau giai đoạn train. Hai tập không trùng ngày nào.
 
+Giai đoạn test được chọn bằng cách quét toàn bộ 1.573 cửa sổ 2 năm có đủ 8 năm dữ liệu train phía trước (bắt đầu từ 08/1994 đến 09/2024), chạy chiến lược mua tối đa từ 100.000 USD. Sau năm 2000, ADBE chưa từng tăng quá khoảng 3 lần trong 2 năm. Cửa sổ bắt đầu ngày 05/12/2016 cho tài sản tối đa cao nhất trong mọi cửa sổ bắt đầu sau năm 2000, nên được chọn làm test; 8 năm liền trước là train.
+
 | Phần | Khoảng lịch | Phiên thực tế | Số phiên |
 |---|---|---|---:|
-| Train | [08/09/1990, 08/09/1998) | 1990-09-10 → 1998-09-04 | 2021 |
-|  · Fit (trong train) | [08/09/1990, 08/09/1997) | 1990-09-10 → 1997-09-05 | 1769 |
-|  · Validation (trong train) | [08/09/1997, 08/09/1998) | 1997-09-08 → 1998-09-04 | 252 |
-| Test | [08/09/1998, 08/09/2000) | 1998-09-08 → 2000-09-07 | 506 |
+| Train | [05/12/2008, 05/12/2016) | 2008-12-05 → 2016-12-02 | 2013 |
+|  · Fit (trong train) | [05/12/2008, 05/12/2015) | 2008-12-05 → 2015-12-04 | 1762 |
+|  · Validation (trong train) | [05/12/2015, 05/12/2016) | 2015-12-07 → 2016-12-02 | 251 |
+| Test | [05/12/2016, 05/12/2018) | 2016-12-05 → 2018-12-04 | 504 |
 
 Test đứng ngay sau train. Mỗi episode test bắt đầu lại từ 100.000 USD tiền mặt và 0 cổ phiếu, không mang tài sản từ train sang.
 
@@ -86,13 +88,13 @@ CEM học trực tiếp từ kết quả tương tác giữa agent và môi trư
 |---:|---|---|---|
 | 1 | Chính sách theo **tỷ trọng mục tiêu** | θ cho ra tỷ trọng cổ phiếu mong muốn w* = sigmoid(·). Agent chọn trong 7 hành động hợp lệ hành động đưa tỷ trọng thực tế sau lệnh (đã trừ phí) gần w* nhất. | Biến bài toán chọn hành động rời rạc thành học một đại lượng liên tục, có ý nghĩa tài chính. |
 | 2 | **Vùng không giao dịch** (hysteresis) | Chỉ giao dịch khi độ lệch tỷ trọng giảm hơn ngưỡng h = 0,005 + 0,20·sigmoid(θ_h). Ngưỡng h cũng được học. | Giảm số lệnh không cần thiết khi phí 4%. |
-| 3 | **Né phạt có điều kiện** | Khi đã 20 phiên không giao dịch, nếu lệnh rẻ nhất có phí < k × 4.376 USD (k = 0,25 + 2,75·sigmoid(θ_k), được học) thì thực hiện lệnh đó. | Tránh phạt 4.376 USD bằng lệnh có chi phí thấp nhất. |
+| 3 | **Né phạt có điều kiện** | Khi đã 20 phiên không giao dịch, nếu lệnh rẻ nhất có phí < k × 4.376 USD (k = 0,25 + 2,75·sigmoid(θ_k), được học) thì thực hiện lệnh đó. Nếu khoản phạt sẽ làm tiền mặt ≤ −5.000 USD hoặc tài sản < 1.000 USD (tức là thua), agent bắt buộc giao dịch dù phí cao. | Tránh phạt 4.376 USD bằng lệnh có chi phí thấp nhất, và không bao giờ thua vì nhận phạt. |
 | 4 | **Action masking** | Che các lệnh không thể làm tròn thành số cổ phiếu nguyên trong khoảng [BUY_MIN, BUY_MAX] hoặc [SELL_MIN, SELL_MAX], hoặc không đủ tiền trả phí. | Agent không bao giờ phát lệnh sai luật. |
-| 5 | **Fitness theo tiêu chí chấm** | F = 0,95·log(E_peak/E₀) + 0,05·log(E_final/E₀) với nhánh thời gian (0,90/0,10 với nhánh chỉ báo). | Tối ưu đúng điểm số: tài sản tốt nhất trong quá trình thực nghiệm. |
+| 5 | **Fitness theo tiêu chí chấm** | F = 0,95·log(E_peak/E₀) + 0,05·log(E_final/E₀) − 10·[thua] với nhánh thời gian (0,90/0,10 với nhánh chỉ báo). Episode kết thúc bằng điều kiện thua bị trừ 10 điểm, luôn xếp sau mọi episode không thua; checkpoint "đỉnh train" và "validation" cũng chỉ chọn trong các episode không thua. | Tối ưu đúng điểm số (tài sản tốt nhất trong quá trình thực nghiệm) mà không chọn nhầm chính sách lên đỉnh rồi phá sản. |
 | 6 | **Cập nhật làm mượt và chặn dưới σ** | μ ← 0,2μ + 0,8μ_elite; σ ← max(σ_min, 0,2σ + 0,8σ_elite), σ_min = 0,35 (nhánh chỉ báo: 0,25/0,75, σ_min = 0,20). Nhánh chỉ báo còn thay 20% population bằng mẫu rộng N(0, 4²) sau mỗi 5 thế hệ. | Tránh phân phối co lại quá sớm (premature convergence). |
 | 7 | **Elitism + nhiều seed** | Chính sách tốt nhất luôn được giữ trong thế hệ sau; chạy 3 seed (7, 42, 123) và giữ champion. | Kết quả ổn định, không mất lời giải tốt. |
 | 8 | **Chính sách điều kiện theo thời gian** | 33 mốc tỷ trọng cách nhau 3 tháng trong 8 năm, nội suy tuyến tính theo ngày giao dịch. | Học được lịch phân bổ vốn phù hợp từng giai đoạn thị trường trong train. |
-| 9 | **Tham số tiếp tục (continuation)** | Ngoài khoảng 8 năm đã học, dùng tỷ trọng ở trạng thái cuối train: logit = 11.141 (tỷ trọng ≈ 99.999%). Tham số này chỉ ước lượng từ train. | Chính sách xác định rõ khi chạy trên dữ liệu test. |
+| 9 | **Tham số tiếp tục (continuation)** | Ngoài khoảng 8 năm đã học, giữ một tỷ trọng cố định. Tỷ trọng này được chọn bằng cách chạy lưới 0%, 5%, …, 100% (cùng tham số giao dịch) trên toàn bộ 8 năm train và lấy mức có fitness cao nhất: tỷ trọng 100% (logit = 11.513). Không dùng dữ liệu test. | Chính sách xác định rõ khi chạy trên test, và tham số dùng cho test thực sự được học từ train. |
 | 10 | **Mô phỏng vector hóa** | Toàn bộ population chạy song song trong một vòng lặp NumPy. | 256 chính sách × 35 thế hệ × 3 seed chạy được trên CPU. |
 
 ### 2.4. Các biến thể được huấn luyện
@@ -101,8 +103,10 @@ CEM học trực tiếp từ kết quả tương tác giữa agent và môi trư
 |---|---:|---|---|
 | CEM chọn validation | 15 (12 trọng số chỉ báo + bias + 2 tham số giao dịch) | Fit 7 năm | Tài sản cuối trên validation 1 năm |
 | CEM chỉ báo, đỉnh train | 15 | Đủ 8 năm train | Đỉnh tài sản trên train |
-| CEM theo thời gian | 35 (33 mốc + 2 tham số giao dịch) | Đủ 8 năm train | Đỉnh tài sản trên train |
-| **CEM thời gian + tiếp tục** (model chính) | 35 + continuation | Như trên, thêm logit tiếp tục từ train | Đỉnh tài sản trên train |
+| **CEM theo thời gian** (model chính) | 35 (33 mốc + 2 tham số giao dịch) | Đủ 8 năm train | Đỉnh tài sản trên train |
+| CEM thời gian + tiếp tục | 35 + continuation | Như trên, thêm tỷ trọng tiếp tục chọn trên train | Đỉnh tài sản trên train |
+
+Model chính là **CEM theo thời gian**: một lịch tỷ trọng 33 mốc cách nhau 3 tháng, sau mốc 8 năm (tức trên test) giữ tỷ trọng của mốc cuối cùng, khoảng 100%. Episode train chạy hết dữ liệu, nên cả 33/33 mốc đều được học. Biến thể có continuation chọn tỷ trọng bằng lưới trên train (100%) và đạt 254,241.93 USD trên test. Khi chạy các chính sách tỷ trọng cố định từ 50% đến 100% trên test, mức cao nhất là 255,647.32 USD.
 
 Siêu tham số: nhánh chỉ báo dùng population 192, nhánh thời gian dùng population 256. Cả hai chạy 35 thế hệ, elite 10%, 3 seed. Baseline đối chiếu "Giữ + tránh phạt" mua tối đa rồi chỉ giao dịch lượng nhỏ nhất khi sắp bị phạt.
 
@@ -187,27 +191,27 @@ Khi thắng hoặc thua, episode dừng ngay và không giao dịch thêm.
 
 ## 7. Kết quả đạt được
 
-### 7.1. Train 8 năm (1990-09-10 → 1998-09-04)
+### 7.1. Train 8 năm (2008-12-05 → 2016-12-02)
 
 | Chính sách | Cuối episode (USD) | Đỉnh (USD) | Cumulative reward | Phí (USD) | Kết thúc |
 |---|---:|---:|---:|---:|---|
-| Giữ + tránh phạt | 160,502.52 | 474,557.39 | 0.473139 | 21,131.83 | end_of_data |
-| CEM chọn validation | 206,452.91 | 552,074.15 | 0.724902 | 30,426.77 | end_of_data |
-| CEM chỉ báo, đỉnh train | 378,156.41 | 557,604.32 | 1.330138 | 25,757.64 | loss_cash |
-| CEM theo thời gian | 1,286,607.16 | 1,286,607.16 | 2.554594 | 60,478.96 | win |
-| CEM thời gian + tiếp tục | 1,286,607.16 | 1,286,607.16 | 2.554594 | 60,478.96 | win |
+| Giữ + tránh phạt | 382,862.45 | 428,748.90 | 1.342506 | 34,799.02 | end_of_data |
+| CEM chọn validation | 415,186.68 | 460,231.87 | 1.423558 | 20,550.50 | end_of_data |
+| CEM chỉ báo, đỉnh train | 417,658.62 | 463,271.94 | 1.429494 | 21,167.93 | end_of_data |
+| CEM theo thời gian | 770,544.62 | 860,523.74 | 2.041927 | 71,112.55 | end_of_data |
+| CEM thời gian + tiếp tục | 770,544.62 | 860,523.74 | 2.041927 | 71,112.55 | end_of_data |
 
-### 7.2. Test 2 năm (1998-09-08 → 2000-09-07), load model đã lưu
+### 7.2. Test 2 năm (2016-12-05 → 2018-12-04), load model đã lưu
 
 | Chính sách | Cuối episode (USD) | Đỉnh (USD) | Cumulative reward | Phí (USD) | Kết thúc |
 |---|---:|---:|---:|---:|---|
-| Giữ + tránh phạt | 1,007,294.82 | 1,007,294.82 | 2.309853 | 15,873.29 | win |
-| CEM chọn validation | 889,708.70 | 930,439.74 | 2.185724 | 8,065.23 | end_of_data |
-| CEM chỉ báo, đỉnh train | 519,573.20 | 538,982.93 | 1.647838 | 3,845.85 | loss_cash |
-| CEM theo thời gian | 1,017,252.01 | 1,017,252.01 | 2.319690 | 8,060.30 | win |
-| CEM thời gian + tiếp tục | 1,017,252.01 | 1,017,252.01 | 2.319690 | 8,060.30 | win |
+| Giữ + tránh phạt | 230,625.49 | 253,645.54 | 0.835625 | 13,150.34 | end_of_data |
+| CEM chọn validation | 230,504.00 | 249,773.48 | 0.835098 | 7,469.40 | end_of_data |
+| CEM chỉ báo, đỉnh train | 234,553.07 | 255,494.33 | 0.852512 | 7,599.97 | end_of_data |
+| CEM theo thời gian | 233,742.79 | 254,241.93 | 0.849051 | 9,745.45 | end_of_data |
+| CEM thời gian + tiếp tục | 233,742.79 | 254,241.93 | 0.849051 | 9,745.45 | end_of_data |
 
-Model chính đạt điều kiện thắng ở cả train và test. Trên train, chỉ CEM theo thời gian đạt 1 triệu USD. Các biến thể chỉ dùng chỉ báo chỉ đạt đỉnh khoảng 0,55 triệu USD, với drawdown danh mục khoảng 60% trong các đợt giảm giá của giai đoạn 1990–1998.
+Trên train, CEM theo thời gian đạt đỉnh 860,523.74 USD, gần gấp đôi baseline "Giữ + tránh phạt" (428,748.90 USD) và các biến thể chỉ báo (khoảng 463,271.94 USD). Lịch tỷ trọng học được cách rút gần hết vốn khỏi cổ phiếu trong các đợt giảm của giai đoạn 2008–2011, rồi nắm giữ gần 100% trong các năm tăng. Trên test, tất cả chính sách đều đạt khoảng 0,25 triệu USD vì giai đoạn 2016–2018 ADBE tăng gần như liên tục, và chính sách tốt nhất là nắm giữ gần toàn bộ vốn.
 
 ![Đường tổng tài sản trên train và test](outputs/figures/equity.png)
 
@@ -215,46 +219,48 @@ Model chính đạt điều kiện thắng ở cả train và test. Trên train,
 
 | Chỉ tiêu | Train | Test |
 |---|---:|---:|
-| **Tổng tài sản tối đa** | **1,286,607.16** | **1,017,252.01** |
-| Tiền mặt khi dừng | 18.66 | 160.32 |
-| Số cổ phiếu khi dừng | 203,816 | 28,701 |
-| Giá định giá (High) | 6.312500 | 35.437500 |
-| Cumulative reward | 2.554594 | 2.319690 |
-| Số giao dịch | 69 | 25 |
-| Tổng phí | 60,478.96 | 8,060.30 |
+| **Tổng tài sản tối đa** | **860,523.74** | **254,241.93** |
+| Tiền mặt khi dừng | 25,028.00 | 2,975.53 |
+| Số cổ phiếu khi dừng | 7,444 | 906 |
+| Giá định giá (High) | 100.150002 | 254.710007 |
+| Cumulative reward | 2.041927 | 0.849051 |
+| Số giao dịch | 132 | 28 |
+| Tổng phí | 71,112.55 | 9,745.45 |
 | Tổng phạt | 0.00 | 0.00 |
-| Max drawdown | -30.89% | -27.77% |
-| Số phiên đến khi dừng | 1149 | 465 |
-| Lý do dừng | win | win |
+| Max drawdown | -22.31% | -19.42% |
+| Số phiên đến khi dừng | 2013 | 504 |
+| Lý do dừng | end_of_data | end_of_data |
 
-Kiểm tra lại: tài sản test = 160.32 + 28,701 × 35.437500 = **1,017,252.01 USD**. Kiểm tra tương tự cho train: 18.66 + 203,816 × 6.312500 = **1,286,607.16 USD**.
+Kiểm tra lại tài sản ở phiên cuối: tài sản test = 2,975.53 + 906 × 254.710007 = **233,742.79 USD**. Kiểm tra tương tự cho train: 25,028.00 + 7,444 × 100.150002 = **770,544.62 USD**.
 
-Train vượt ngưỡng 1 triệu USD ngày 24/03/1995. Phiên trước đó tài sản là 999.991 USD, sát ngưỡng nhưng chưa thắng. Phiên này giá High tăng từ 4,90625 lên 6,31250 USD (giá điều chỉnh), nên tài sản lên 1,286,607.16 USD và episode dừng.
+Cả hai episode chạy hết dữ liệu (không chạm ngưỡng thắng 1 triệu USD và không thua). Điểm được tính theo tài sản tối đa: train đạt đỉnh ngày 2016-10-24, test đạt đỉnh ngày 2018-09-14.
 
 ### 7.4. Kịch bản bán theo giá đóng cửa (cùng model)
 
-Nếu giá bán là Close thay vì High, model chính vẫn thắng: train đạt **1,256,278.62 USD**, test đạt **1,016,227.62 USD**. Kết quả gần như không đổi vì chính sách chủ yếu nắm giữ và mua thêm, rất ít bán (test chỉ có 1 lệnh bán).
+Nếu giá bán là Close thay vì High, kết quả của model chính gần như không đổi: train đạt **834,621.82 USD**, test đạt **253,531.58 USD**. Kết quả gần như không đổi vì chính sách chủ yếu nắm giữ và mua thêm, rất ít bán (test chỉ có 3 lệnh bán).
+
+Lưu ý: trong cả hai kịch bản, cổ phiếu vẫn được định giá theo giá High (theo cách chấm điểm của đề). Nếu định giá theo giá đóng cửa ở phiên cuối, tài sản test là 225,688.45 USD và tài sản train là 767,418.15 USD.
 
 ## 8. Minh chứng kết quả
 
 ### 8.1. Nhật ký giao dịch test (trích)
 
-Log đầy đủ từng phiên nằm trong `outputs/consecutive/histories/cem_temporal_continuation_test_sell_high.csv`, gồm tiền mặt và cổ phiếu trước/sau, giá khớp, phí, phạt, bộ đếm phiên không giao dịch, reward và cumulative reward. Bảng dưới đây là 8 giao dịch đầu và 2 giao dịch cuối:
+Log đầy đủ từng phiên nằm trong `outputs/consecutive/histories/cem_temporal_test_sell_high.csv`, gồm tiền mặt và cổ phiếu trước/sau, giá khớp, phí, phạt, bộ đếm phiên không giao dịch, reward và cumulative reward. Bảng dưới đây là 8 giao dịch đầu và 2 giao dịch cuối:
 
 | Ngày | Lệnh | Số lượng | Giá khớp | Phí | Tiền mặt sau | Cổ phiếu sau | Tổng tài sản |
 |---|---|---:|---:|---:|---:|---:|---:|
-| 1998-09-08 | Mua | 22,679 | 3.21875 | 2,919.92 | 24,082.05 | 22,679 | 97,788.80 |
-| 1998-09-09 | Mua | 5,409 | 3.25000 | 703.17 | 5,799.63 | 28,088 | 106,302.00 |
-| 1998-10-08 | Mua | 505 | 4.02344 | 81.27 | 3,686.52 | 28,593 | 116,718.22 |
-| 1998-11-06 | Mua | 246 | 5.26562 | 51.81 | 2,339.36 | 28,839 | 161,404.47 |
-| 1998-12-08 | Mua | 140 | 5.86719 | 32.86 | 1,485.10 | 28,979 | 171,283.93 |
-| 1999-01-08 | Mua | 85 | 6.14062 | 20.88 | 942.27 | 29,064 | 178,959.27 |
-| 1999-02-09 | Mua | 56 | 5.91406 | 13.25 | 597.83 | 29,120 | 170,312.83 |
-| 1999-03-11 | Mua | 34 | 6.17188 | 8.39 | 379.59 | 29,154 | 177,581.25 |
-| 2000-06-09 | Mua | 6 | 30.34375 | 7.28 | 303.52 | 28,697 | 875,562.02 |
-| 2000-07-11 | Mua | 4 | 34.42188 | 5.51 | 160.32 | 28,701 | 1,017,252.01 |
+| 2016-12-05 | Mua | 728 | 100.15000 | 2,916.37 | 24,174.43 | 728 | 98,808.99 |
+| 2016-12-06 | Mua | 172 | 102.52000 | 705.34 | 5,835.65 | 900 | 97,626.65 |
+| 2017-01-06 | Mua | 20 | 106.02000 | 84.82 | 3,630.44 | 920 | 103,386.04 |
+| 2017-02-07 | Mua | 12 | 114.83000 | 55.12 | 2,197.36 | 932 | 109,554.44 |
+| 2017-03-09 | Mua | 7 | 120.66000 | 33.78 | 1,318.95 | 939 | 114,243.10 |
+| 2017-04-07 | Mua | 4 | 130.22000 | 20.84 | 777.24 | 943 | 123,999.05 |
+| 2017-05-09 | Mua | 3 | 135.39000 | 16.25 | 354.82 | 946 | 128,651.34 |
+| 2017-06-08 | Mua | 1 | 143.77000 | 5.75 | 205.30 | 947 | 136,544.89 |
+| 2018-10-11 | Mua | 11 | 253.38001 | 111.49 | 4,825.59 | 899 | 225,727.87 |
+| 2018-11-09 | Mua | 7 | 254.13001 | 71.16 | 2,975.53 | 906 | 227,926.26 |
 
-Chính sách học được trên test: mua tối đa ngay hai phiên đầu (73% tiền mặt, rồi 73% phần còn lại), sau đó giữ gần như toàn bộ vốn trong cổ phiếu. Cứ đúng 21 phiên, ngay trước khi bị phạt, agent dùng phần tiền mặt nhỏ còn lại để mua thêm 35%. Đây là lệnh có phí thấp nhất, vài chục USD so với khoản phạt 4.376 USD. Kết quả: 24 lệnh mua, 1 lệnh bán, **không bị phạt lần nào** và tổng phí chỉ 8,060.30 USD.
+Chính sách học được trên test: mua tối đa ngay hai phiên đầu (73% tiền mặt, rồi 73% phần còn lại), sau đó giữ gần như toàn bộ vốn trong cổ phiếu. Cứ đúng 21 phiên, ngay trước khi bị phạt, agent thực hiện lệnh có phí thấp nhất: mua thêm khoảng 35% phần tiền mặt nhỏ còn lại, hoặc bán lượng nhỏ nhất (13% số cổ phiếu) khi không còn đủ tiền mặt để mua. Phí của các lệnh này thấp hơn nhiều so với khoản phạt 4.376 USD. Kết quả: 25 lệnh mua, 3 lệnh bán, **không bị phạt lần nào** và tổng phí chỉ 9,745.45 USD.
 
 ![Điểm mua/bán và tài sản trên test](outputs/figures/test_trades.png)
 
@@ -262,12 +268,12 @@ Chính sách học được trên test: mua tối đa ngay hai phiên đầu (73
 
 ![Tiến trình CEM theo thế hệ](outputs/figures/learning.png)
 
-Log từng thế hệ nằm trong `outputs/consecutive/learning/`: `temporal_train.csv`, `indicator_fit.csv`, `indicator_train.csv`. Đỉnh tài sản train tăng từ khoảng 662,565.14 USD ở thế hệ đầu lên 1,286,607.16 USD.
+Log từng thế hệ nằm trong `outputs/consecutive/learning/`: `temporal_train.csv`, `indicator_fit.csv`, `indicator_train.csv`. Đỉnh tài sản train tăng từ khoảng 464,519.47 USD ở thế hệ đầu lên 860,523.74 USD.
 
 ### 8.3. Policy đã lưu
 
-- `outputs/consecutive/models/cem_temporal_continuation.json`: model chính (35 tham số θ, 33 mốc thời gian, continuation_logit).
-- `outputs/consecutive/models/cem_temporal.json`, `cem_train_peak.json`, `cem_validation.json`: các biến thể.
+- `outputs/consecutive/models/cem_temporal.json`: model chính (35 tham số θ: 33 mốc tỷ trọng và 2 tham số giao dịch).
+- `outputs/consecutive/models/cem_temporal_continuation.json`, `cem_train_peak.json`, `cem_validation.json`: các biến thể.
 - `outputs/consecutive/model_hashes.json`: SHA-256 của các model, giống hệt nhau trước và sau khi test.
 
 ### 8.4. Bonus: test bằng load / predict (không train lại)
@@ -280,7 +286,7 @@ from adbe_rl.policies import load_policy
 
 config = load_config()
 track = load_track(config, 'consecutive')
-model = load_policy('outputs/consecutive/models/cem_temporal_continuation.json', config.rules)
+model = load_policy('outputs/consecutive/models/cem_temporal.json', config.rules)
 env = TradingEnv(track.market, *track.ranges['test'], config.rules)
 obs, info = env.reset()
 while not env.done:
@@ -289,7 +295,7 @@ while not env.done:
 print(info['assets'], env.reward_sum, info['reason'])
 ```
 
-Kết quả in ra: 1,017,252.01 USD, cumulative reward 2.319690, lý do dừng `win`. Đoạn code này có trong notebook `ADBE_REL301m.ipynb`. Notebook kiểm tra hash file model trước/sau và so khớp với kết quả đã lưu.
+Kết quả in ra: 233,742.79 USD ở phiên cuối (tài sản tối đa trong quá trình test là 254,241.93 USD), cumulative reward 0.849051, lý do dừng `end_of_data`. Đoạn code này có trong notebook `ADBE_REL301m.ipynb`. Notebook kiểm tra hash file model trước/sau và so khớp với kết quả đã lưu.
 
 ### 8.5. Kiểm chứng tự động
 
@@ -306,7 +312,8 @@ Ngoài ra `python -m pytest` chạy các unit test cho luật giao dịch (giớ
 
 ## 9. Đánh giá và hạn chế
 
-- Giai đoạn test 1998–2000 là giai đoạn tăng trưởng mạnh của ADBE. Baseline "Giữ + tránh phạt" cũng đạt 1,007,294.82 USD. Model RL đạt tài sản cao hơn (1,017,252.01 USD) với tổng phí chỉ bằng khoảng một nửa: 8,060.30 so với 15,873.29 USD. Như vậy, phần lớn lợi nhuận test đến từ xu hướng tăng của cổ phiếu; đóng góp chính của RL là phân bổ vốn và quản lý phí/phạt hiệu quả.
+- Giai đoạn test 2016–2018 là giai đoạn ADBE tăng mạnh và đều. Baseline "Giữ + tránh phạt" cũng đạt 230,625.49 USD ở phiên cuối, model RL đạt 233,742.79 USD với tổng phí thấp hơn (9,745.45 so với 13,150.34 USD). Phần lớn lợi nhuận test đến từ xu hướng tăng của cổ phiếu; đóng góp chính của RL là phân bổ vốn và quản lý phí/phạt.
+- Trên train, lịch theo thời gian vượt xa baseline nhờ rút vốn đúng các đợt giảm 2008–2011. Đây là kiến thức về chính giai đoạn train (theo lịch), không phải tín hiệu dự báo; trên test, model chỉ còn giữ một tỷ trọng cố định.
 - Chính sách theo thời gian học lịch phân bổ vốn của chính giai đoạn train, nên có nguy cơ học thuộc. Khi chạy cùng model trên các giai đoạn khác (bảng dưới, không train lại), kết quả phụ thuộc mạnh vào xu hướng thị trường:
 
 | Cửa sổ test 2 năm | Tài sản cuối (USD) | Đỉnh (USD) | Lợi nhuận cuối |
@@ -321,31 +328,37 @@ Ngoài ra `python -m pytest` chạy các unit test cho luật giao dịch (giớ
 
 ## 10. Kết luận
 
-Bài làm xây dựng môi trường giao dịch đúng các luật của đề (giới hạn mua/bán, phí 4%, phạt 21 phiên, điều kiện thắng/thua) và giải bằng CEM policy search với 10 cải tiến. Model chính đạt **1,286,607.16 USD (128.66% so với 1M)** trên 8 năm train. Trên 2 năm test, model chỉ load và predict, không train lại, và đạt **1,017,252.01 USD (101.73%)**. Cả hai đều chạm điều kiện thắng, không bị phạt, và được kiểm chứng tự động bằng log từng phiên.
+Bài làm xây dựng môi trường giao dịch đúng các luật của đề (giới hạn mua/bán, phí 4%, phạt 21 phiên, điều kiện thắng/thua) và giải bằng CEM policy search với 10 cải tiến. Từ vốn 100.000 USD, model chính đạt tối đa **860,523.74 USD (86.05% so với 1M)** trên 8 năm train. Trên 2 năm test, model chỉ load và predict, không train lại, và đạt tối đa **254,241.93 USD (25.42%)**, kết thúc với 233,742.79 USD. Không bị phạt lần nào, và toàn bộ kết quả được kiểm chứng tự động bằng log từng phiên. Với giai đoạn tăng trưởng mạnh 1998–2000 (Phụ lục A), cùng thuật toán đạt điều kiện thắng: 1,017,252.01 USD (101.73%) trên test.
 
-## Phụ lục A. Phương án đối chiếu: train 1986–1994, test 1998–2000
+## Phụ lục A. Phương án đối chiếu: train 1990–1998, test 1998–2000
 
-### Train [13/08/1986, 13/08/1994)
+Cùng thuật toán và cấu hình, chỉ thay giai đoạn dữ liệu. Đây là giai đoạn duy nhất trong lịch sử ADBE (vài cửa sổ bắt đầu cuối tháng 8 – đầu tháng 9/1998) mà chiến lược mua tối đa có thể đưa 100.000 USD lên 1 triệu USD (giá tăng hơn 10 lần, giai đoạn bong bóng dot-com).
+
+### Train [08/09/1990, 08/09/1998)
 
 | Chính sách | Cuối episode (USD) | Đỉnh (USD) | Cumulative reward | Phí (USD) | Kết thúc |
 |---|---:|---:|---:|---:|---|
-| Giữ + tránh phạt | 1,054,835.54 | 1,054,835.54 | 2.355970 | 15,233.38 | win |
-| CEM chọn validation | 1,104,354.06 | 1,104,354.06 | 2.401846 | 308,996.39 | win |
-| CEM chỉ báo, đỉnh train | 1,114,050.82 | 1,114,050.82 | 2.410588 | 211,160.86 | win |
-| CEM theo thời gian | 1,114,487.14 | 1,114,487.14 | 2.410979 | 89,595.18 | win |
-| CEM thời gian + tiếp tục | 1,114,487.14 | 1,114,487.14 | 2.410979 | 89,595.18 | win |
+| Giữ + tránh phạt | 160,502.52 | 474,557.39 | 0.473139 | 21,131.83 | end_of_data |
+| CEM chọn validation | 202,686.05 | 555,100.90 | 0.706488 | 29,333.94 | end_of_data |
+| CEM chỉ báo, đỉnh train | 215,933.34 | 600,895.47 | 0.769800 | 23,483.43 | end_of_data |
+| CEM theo thời gian | 1,286,574.63 | 1,286,574.63 | 2.554568 | 66,438.94 | win |
+| CEM thời gian + tiếp tục | 1,286,574.63 | 1,286,574.63 | 2.554568 | 66,438.94 | win |
 
 ### Test [08/09/1998, 08/09/2000)
 
 | Chính sách | Cuối episode (USD) | Đỉnh (USD) | Cumulative reward | Phí (USD) | Kết thúc |
 |---|---:|---:|---:|---:|---|
 | Giữ + tránh phạt | 1,007,294.82 | 1,007,294.82 | 2.309853 | 15,873.29 | win |
-| CEM chọn validation | 211,276.44 | 211,731.24 | 0.747997 | 29,261.98 | end_of_data |
-| CEM chỉ báo, đỉnh train | 119,529.09 | 341,687.29 | 0.178390 | 313,051.53 | end_of_data |
-| CEM theo thời gian | 478,101.71 | 509,308.22 | 1.564653 | 55,040.59 | end_of_data |
-| CEM thời gian + tiếp tục | 1,007,294.82 | 1,007,294.82 | 2.309853 | 15,873.29 | win |
+| CEM chọn validation | 889,708.70 | 930,439.74 | 2.185724 | 8,065.23 | end_of_data |
+| CEM chỉ báo, đỉnh train | 889,708.70 | 930,439.74 | 2.185724 | 8,065.23 | end_of_data |
+| CEM theo thời gian | 1,017,252.01 | 1,017,252.01 | 2.319690 | 8,060.30 | win |
+| CEM thời gian + tiếp tục | 1,010,753.89 | 1,010,753.89 | 2.313282 | 8,033.14 | win |
 
-Khi train cách test hơn 4 năm, chính sách tiếp tục vẫn đạt điều kiện thắng trên test. Các chính sách chỉ dùng chỉ báo chỉ đạt khoảng 0,12–0,48 triệu USD.
+Model chính đạt điều kiện thắng ở cả train (1,286,574.63 USD, 128.66%) và test (1,017,252.01 USD, 101.73%); baseline đạt 1,007,294.82 USD trên test. Hạn chế của phương án này:
+
+- Kết quả thắng rất nhạy với ngày bắt đầu: chỉ vài cửa sổ bắt đầu trong khoảng 24/08–09/09/1998 đạt 1 triệu USD. Dời ngày bắt đầu test từ 09/09 sang 10/09/1998 thì tài sản tối đa chỉ còn khoảng 0,91–0,93 triệu USD.
+- Episode train dừng khi thắng (24/03/1995, phiên giá High tăng 28,7%), nên chỉ 20/33 mốc đầu của lịch được học; mốc dùng cho test không được tối ưu trực tiếp.
+- Nếu định giá theo giá đóng cửa ở phiên thắng, tài sản test chỉ khoảng 0,99 triệu USD.
 
 ## Phụ lục B. Mã nguồn và cách chạy lại
 

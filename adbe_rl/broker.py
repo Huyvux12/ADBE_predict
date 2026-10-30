@@ -66,6 +66,7 @@ class Book:
         self.peak = self.cash.copy()
         self.final = self.cash.copy()
         self.alive = np.ones(n, dtype=bool)
+        self.lost = np.zeros(n, dtype=bool)   # ended by a loss condition
 
     def step(self, quantity, buy_price, sell_price, mark_price) -> Fill:
         r = self.rules
@@ -88,5 +89,6 @@ class Book:
         outcome = np.select([assets >= r.win_assets, assets < r.loss_assets, self.cash <= r.loss_cash],
                             ['win', 'loss_assets', 'loss_cash'], '')
         outcome = np.where(self.alive, outcome, '')
+        self.lost |= (outcome == 'loss_assets') | (outcome == 'loss_cash')
         self.alive &= outcome == ''
         return Fill(quantity, price, notional, fee, penalty, assets, outcome)

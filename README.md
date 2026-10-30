@@ -4,8 +4,11 @@ Học tăng cường để tối đa hóa tổng tài sản khi giao dịch cổ
 
 | Tập | Khoảng | Tổng tài sản | Kết thúc |
 |---|---|---:|---|
-| Train 8 năm | [08/09/1990, 08/09/1998) | 1.286.607,16 USD | thắng |
-| Test 2 năm (load/predict, không train lại) | [08/09/1998, 08/09/2000) | 1.017.252,01 USD | thắng |
+| Train 8 năm | [05/12/2008, 05/12/2016) | 860.523,74 USD (86,05%) | hết dữ liệu |
+| Test 2 năm (load/predict, không train lại) | [05/12/2016, 05/12/2018) | 254.241,93 USD (25,42%) | hết dữ liệu |
+| Phụ lục: test 1998–2000 (train 1990–1998) | [08/09/1998, 08/09/2000) | 1.017.252,01 USD (101,73%) | thắng |
+
+Vốn ban đầu 100.000 USD mỗi episode. "Tổng tài sản" là tài sản cao nhất trong quá trình thực nghiệm, theo cách chấm điểm của đề.
 
 Báo cáo: `Bao_cao_REL301m_ADBE.html` (nguồn `.md`, sinh tự động). Điền họ tên, MSSV, lớp trước khi nộp.
 
@@ -18,7 +21,7 @@ python -m pytest          # unit test luật giao dịch
 python main.py train      # huấn luyện lại từ đầu, ghi đè outputs/*/models (~10 phút CPU)
 ```
 
-Từng bước: `python main.py {train|evaluate|replay|verify|report} [--track consecutive|gap|all] [--quick] [--output DIR]`.
+Từng bước: `python main.py {train|evaluate|replay|verify|report} [--track consecutive|dotcom|all] [--quick] [--output DIR]`.
 
 Notebook:
 
@@ -50,7 +53,7 @@ tests/                   Unit test (pytest)
 data/                    ADBE daily 1986–2026 (Yahoo Finance, giá điều chỉnh split)
 outputs/
   consecutive/           Bản chính: models/, histories/, learning/, summary.csv, splits.json
-  gap/                   Đối chiếu: train 1986–1994, test 1998–2000
+  dotcom/                Phụ lục: train 1990–1998, test 1998–2000
   replay/                Model chính trên các cửa sổ 2 năm 2020–2024
   figures/               Hình trong báo cáo
   end_to_end/            Kết quả của notebook end-to-end

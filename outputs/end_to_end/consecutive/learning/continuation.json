@@ -1,6 +1,158 @@
 {
-  "source": "training replay only",
-  "last_training_date": "1995-03-24",
-  "last_training_exposure": 0.9999854938239691,
-  "continuation_logit": 11.140921559772192
+  "source": "constant-exposure grid on the training period only",
+  "continuation_exposure": 0.99999,
+  "continuation_logit": 11.51291546492478,
+  "grid": [
+    {
+      "exposure": 0.0,
+      "peak": 100311.81826408001,
+      "final": 84695.84347559998,
+      "lost": false,
+      "fitness": -0.005347518318853895
+    },
+    {
+      "exposure": 0.05,
+      "peak": 100571.87083728,
+      "final": 93172.58296976006,
+      "lost": false,
+      "fitness": 0.0018814636170817354
+    },
+    {
+      "exposure": 0.1,
+      "peak": 100571.87083728,
+      "final": 93172.58296976006,
+      "lost": false,
+      "fitness": 0.0018814636170817354
+    },
+    {
+      "exposure": 0.15,
+      "peak": 102953.74184460001,
+      "final": 100952.71694408006,
+      "lost": false,
+      "fitness": 0.028128217012916117
+    },
+    {
+      "exposure": 0.2,
+      "peak": 102953.74184460001,
+      "final": 100952.71694408006,
+      "lost": false,
+      "fitness": 0.028128217012916117
+    },
+    {
+      "exposure": 0.25,
+      "peak": 104910.95234368,
+      "final": 93181.75105591994,
+      "lost": false,
+      "fitness": 0.04201373048358753
+    },
+    {
+      "exposure": 0.3,
+      "peak": 118785.51855112004,
+      "final": 115441.22717104002,
+      "lost": false,
+      "fitness": 0.17072141794289328
+    },
+    {
+      "exposure": 0.35,
+      "peak": 116223.02632688,
+      "final": 112236.5283392,
+      "lost": false,
+      "fitness": 0.14859567589300873
+    },
+    {
+      "exposure": 0.4,
+      "peak": 133448.66145096003,
+      "final": 125968.18792144003,
+      "lost": false,
+      "fitness": 0.2856622871109312
+    },
+    {
+      "exposure": 0.45,
+      "peak": 127871.36264360005,
+      "final": 120788.38117696004,
+      "lost": false,
+      "fitness": 0.24300535922044256
+    },
+    {
+      "exposure": 0.5,
+      "peak": 121485.26069016012,
+      "final": 113603.47713200012,
+      "lost": false,
+      "fitness": 0.19126881674887872
+    },
+    {
+      "exposure": 0.55,
+      "peak": 127519.81773176003,
+      "final": 119225.41836656004,
+      "lost": false,
+      "fitness": 0.2397388090981016
+    },
+    {
+      "exposure": 0.6,
+      "peak": 153097.97113584,
+      "final": 142952.69809104002,
+      "lost": false,
+      "fitness": 0.42247965181264
+    },
+    {
+      "exposure": 0.65,
+      "peak": 174945.11387695995,
+      "final": 162626.78987007996,
+      "lost": false,
+      "fitness": 0.5556513864103826
+    },
+    {
+      "exposure": 0.7,
+      "peak": 172431.31908788002,
+      "final": 159799.48419704,
+      "lost": false,
+      "fitness": 0.5410248609128093
+    },
+    {
+      "exposure": 0.75,
+      "peak": 168157.03313112003,
+      "final": 154026.52097912002,
+      "lost": false,
+      "fitness": 0.5153394047488018
+    },
+    {
+      "exposure": 0.8,
+      "peak": 255159.84850984,
+      "final": 232829.34311256,
+      "lost": false,
+      "fitness": 0.932140797006213
+    },
+    {
+      "exposure": 0.85,
+      "peak": 304708.73797904,
+      "final": 276824.70847560005,
+      "lost": false,
+      "fitness": 1.1093875829904092
+    },
+    {
+      "exposure": 0.9,
+      "peak": 380097.53097287996,
+      "final": 343724.15353296,
+      "lost": false,
+      "fitness": 1.3302282730650212
+    },
+    {
+      "exposure": 0.95,
+      "peak": 438102.48100384,
+      "final": 394977.04264872003,
+      "lost": false,
+      "fitness": 1.4721014111867217
+    },
+    {
+      "exposure": 1.0,
+      "peak": 445785.87587016,
+      "final": 401918.61312128004,
+      "lost": false,
+      "fitness": 1.4894890955722557
+    }
+  ],
+  "schedule_last_training_date": "2016-12-02",
+  "schedule_end_reason": "end_of_data",
+  "schedule_knots_trained": 33,
+  "schedule_knots_total": 33
 }

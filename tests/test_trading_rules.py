@@ -90,3 +90,32 @@ def test_observation_shape_and_causality():
     assert obs.shape == (OBSERVATION_SIZE,) and obs.dtype == np.float32
     shocked = flat_market(shock_from=50)
     assert np.array_equal(obs, TradingEnv(shocked, 50, 100, RULES).observation())
+
+
+def _decide_idle(cash):
+    """One fully invested portfolio, one session before the idle penalty, expensive trades."""
+    from adbe_rl.policies import decide
+    controls = np.array([[0., -35.]])          # dodge threshold at its minimum (0.25 x penalty)
+    return int(decide(np.array([10.]), controls, np.array([cash]), np.array([100_000.]),
+                      np.array([RULES.idle_limit - 1]), 100., RULES)[0])
+
+
+def test_decide_accepts_penalty_when_trading_is_dearer():
+    # no cash to buy; selling 13% costs far more than the penalty, which is survivable
+    assert _decide_idle(0.) == HOLD
+
+
+def test_decide_never_takes_a_penalty_that_would_lose():
+    # cash - penalty <= loss_cash: holding would end the episode, so it must trade
+    assert _decide_idle(-1_000.) != HOLD
+
+
+def test_book_flags_losses_only():
+    from adbe_rl.broker import Book
+    book = Book(3, RULES)
+    book.cash[:] = [-4_000., 2_000_000., 100_000.]
+    book.shares[:] = [1_000., 0., 0.]
+    book.idle[:] = [RULES.idle_limit - 1, 0, 0]
+    fill = book.step(np.zeros(3), 100., 100., 100.)
+    assert list(fill.outcome) == ['loss_cash', 'win', '']
+    assert list(book.lost) == [True, False, False]

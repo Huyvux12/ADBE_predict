@@ -90,7 +90,7 @@ def check_parity(models: dict, market: Market, ranges: dict, rules: Rules) -> No
             for sell_price in SCENARIOS.values():
                 r = rules.with_sell_price(sell_price)
                 _, metrics = run_episode(model, TradingEnv(market, *ranges[period], r))
-                peak, final = simulate(model.population(model.theta, market), *ranges[period], r)
+                peak, final, _ = simulate(model.population(model.theta, market), *ranges[period], r)
                 assert np.isclose(metrics['peak_assets'], peak[0], rtol=1e-12), (name, period, sell_price)
                 assert np.isclose(metrics['final_assets'], final[0], rtol=1e-12), (name, period, sell_price)
 

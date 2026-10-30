@@ -8,8 +8,13 @@ from .config import Rules
 from .policies import Population, decide
 
 
-def simulate(population: Population, start: int, end: int, rules: Rules) -> tuple[np.ndarray, np.ndarray]:
-    """Run every member from 100% cash over sessions [start, end); return (peak, final) assets."""
+def simulate(population: Population, start: int, end: int, rules: Rules
+             ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Run every member from 100% cash over sessions [start, end).
+
+    Returns (peak, final, lost): peak and final assets, and whether the episode
+    ended by a loss condition (assets < loss limit or cash <= cash limit).
+    """
     market = population.market
     book = Book(len(population), rules)
     rows = np.arange(len(population))
@@ -21,4 +26,4 @@ def simulate(population: Population, start: int, end: int, rules: Rules) -> tupl
         book.step(quantity, buy, sell, mark)
         if not book.alive.any():
             break
-    return book.peak, book.final
+    return book.peak, book.final, book.lost

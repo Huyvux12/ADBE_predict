@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from .cem import CEMSettings, cem_search
+from .cem import CEMSettings, cem_search, fitness
 from .config import Config, track_dir
 from .env import TradingEnv, run_episode
 from .market import N_FEATURES, Track, load_track
@@ -62,11 +62,12 @@ def train_track(config: Config, name: str, output: Path) -> None:
     # 1. Indicator policy fitted on 7 years, checkpoint chosen on the last training year.
     fitted = search(indicator, indicator_settings(config), 'fit')
     candidates = np.asarray([theta for r in fitted for theta in [*r.archive, r.best, r.best_peak_theta]])
-    peaks, finals = simulate(indicator.population(candidates, track.market), *track.ranges['validation'], rules)
-    k = int(np.argmax(finals))
+    peaks, finals, lost = simulate(indicator.population(candidates, track.market),
+                                   *track.ranges['validation'], rules)
+    k = int(np.argmax(np.where(lost, -np.inf, finals)))   # never pick a checkpoint that loses
     save_policy(IndicatorPolicy(candidates[k], rules), folder / 'models/cem_validation.json')
     pd.DataFrame({'candidate': np.arange(len(finals)), 'validation_peak': peaks,
-                  'validation_final': finals}).to_csv(folder / 'learning/validation_selection.csv', index=False)
+                  'validation_final': finals, 'validation_lost': lost}).to_csv(folder / 'learning/validation_selection.csv', index=False)
 
     # 2. Indicator policy fitted on all 8 years, highest training peak.
     trained = search(indicator, indicator_settings(config), 'train')
@@ -79,8 +80,8 @@ def train_track(config: Config, name: str, output: Path) -> None:
     schedule = TemporalPolicy(champion.best_peak_theta, rules, KNOTS, HORIZON_YEARS)
     save_policy(schedule, folder / 'models/cem_temporal.json')
 
-    # 4. Continuation: keep the exposure of the final training state after the horizon.
-    continuation = fit_continuation(schedule, track)
+    # 4. Continuation: after the horizon, hold the constant exposure that did best on training.
+    continuation = fit_continuation(schedule, track, temporal_settings(config).weights)
     save_policy(schedule.with_continuation(continuation['continuation_logit']),
                 folder / 'models/cem_temporal_continuation.json')
     (folder / 'learning/continuation.json').write_text(json.dumps(continuation, indent=2), encoding='utf-8')
@@ -89,11 +90,39 @@ def train_track(config: Config, name: str, output: Path) -> None:
         pd.DataFrame([row for r in results for row in r.log]).to_csv(folder / f'learning/{label}.csv', index=False)
 
 
-def fit_continuation(schedule: TemporalPolicy, track: Track) -> dict:
-    """Logit of the stock exposure at the end of the training replay; test data is never read."""
-    env = TradingEnv(track.market, *track.ranges['train'], schedule.rules)
+CONTINUATION_GRID = np.round(np.arange(0, 1.0001, .05), 2)
+
+
+def fit_continuation(schedule: TemporalPolicy, track: Track, weights: tuple[float, float]) -> dict:
+    """Constant exposure used after the schedule horizon (e.g. during test).
+
+    Every exposure on a grid is run as a flat schedule (same trading controls)
+    over the whole training period from 100,000 USD cash under the real rules,
+    and the best one by the CEM fitness is kept. Test data is never read.
+
+    Also records how far the training replay of the schedule got: the episode
+    stops at the win condition, so knots after that date never affect training.
+    """
+    rules = schedule.rules
+    exposures = np.clip(CONTINUATION_GRID, 1e-3, 1 - 1e-5)
+    logits = np.log(exposures / (1 - exposures))
+    thetas = np.repeat(schedule.theta[None, :], len(logits), axis=0)
+    thetas[:, :schedule.knots] = logits[:, None]
+    peaks, finals, lost = simulate(schedule.population(thetas, track.market), *track.ranges['train'], rules)
+    scores = fitness(peaks, finals, lost, weights, rules.initial_cash)
+    k = int(np.argmax(scores))
+
+    env = TradingEnv(track.market, *track.ranges['train'], rules)
     history, _ = run_episode(schedule, env)
-    last = history.iloc[-1]
-    exposure = float(np.clip(last.shares * last.mark_price / max(last.assets, 1e-8), 1e-5, 1 - 1e-5))
-    return {'source': 'training replay only', 'last_training_date': last.Date,
-            'last_training_exposure': exposure, 'continuation_logit': float(np.log(exposure / (1 - exposure)))}
+    last_year = float(track.market.years[track.ranges['train'][0] + len(history) - 1])
+    z = min(last_year / schedule.horizon_years * (schedule.knots - 1), schedule.knots - 1)
+    last_knot = min(int(np.ceil(z)), schedule.knots - 1)
+    return {'source': 'constant-exposure grid on the training period only',
+            'continuation_exposure': float(exposures[k]),
+            'continuation_logit': float(logits[k]),
+            'grid': [{'exposure': float(e), 'peak': float(p), 'final': float(f), 'lost': bool(l),
+                      'fitness': float(s)} for e, p, f, l, s in zip(CONTINUATION_GRID, peaks, finals, lost, scores)],
+            'schedule_last_training_date': str(history.Date.iloc[-1]),
+            'schedule_end_reason': str(history.reason.iloc[-1]),
+            'schedule_knots_trained': last_knot + 1,
+            'schedule_knots_total': schedule.knots}
